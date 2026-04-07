@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-class GameState {
+public class GameState {
     private List<Player> players;
     private Deck deck;
     private List<Card> communityCards;
@@ -54,7 +54,9 @@ class GameState {
     public int getCurrentBet(){
         return currentBet;
     }
-
+    public Player getCurrentPlayer(){
+        return players.get(currentPlayerIndex); 
+    }
     public void setCurrentBet(int bet){
         this.currentBet = bet;
     }
@@ -72,8 +74,29 @@ class GameState {
     }
 
     public void nextPlayer() {
+        int count = players.size();
+        do{
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        }while (player.get(currentPlayerIndex).isFolded());
     }
+    public boolean isBettingRoundComplete() {
+        for (Player p : players) {
+            if (!p.isFolded() && p.getCurrentBet() != currentBet) {
+                return false;
+            }
+        }
+        return true;
+     }
+     
+     public int getActivePlayersCount() {
+        int count = 0;
+        for (Player p : players) {
+            if (!p.isFolded()) {
+                count++;
+            }
+        }
+        return count;
+     }
 
     public void resetHand() {
         deck.shuffle();
