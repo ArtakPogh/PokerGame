@@ -3,7 +3,7 @@ package poker.actions;
 import poker.domain.Player;
 import poker.domain.GameSate;
 
-public class Action {
+public abstract class Action {
     protected final Player player;
 
     public Action (Player player){

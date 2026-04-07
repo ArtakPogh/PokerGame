@@ -24,4 +24,19 @@ public class BetAction extends Action {
         this.amount = amount;
     }
 
+    @Override
+    public void execute(GameState gamestate) {
+        player.bet(amount);
+        gamestate.addToPot(amount);
+    }
+
+    @Override
+    public String getActionType() {
+        return "BET";
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
 }
