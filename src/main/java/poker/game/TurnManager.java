@@ -29,7 +29,7 @@ class TurnManager{
         return active <= 1;
     }
     private boolean isActive(Player p) {
-        return !p.isFolded() && p.getChips() > 0;
+        return !p.isFolded() && p.getMoney() > 0;
     }
     public void reset() {
         currentPlayerIndex = 0;
