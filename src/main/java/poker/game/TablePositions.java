@@ -1,6 +1,7 @@
 package poker.game;
 
 import poker.domain.Player;
+
 import java.util.List;
 
 public class TablePositions {
