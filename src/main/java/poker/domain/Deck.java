@@ -2,13 +2,12 @@ package poker.domain;
 
 import poker.domain.enums.Suit;
 import poker.domain.enums.Rank;
-import poker.domain.enums.GamePhase;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-class Deck {
+public class Deck {
     private List<Card> cards = new ArrayList<>();
 
     public Deck() {
@@ -32,5 +31,14 @@ class Deck {
 
     public int remainingCards() {
         return cards.size();
+    }
+
+    public void reset() {
+        cards.clear();
+        for (Suit suit : Suit.values()) {
+            for (Rank rank : Rank.values()) {
+                cards.add(new Card(suit, rank));
+            }
+        }
     }
 }

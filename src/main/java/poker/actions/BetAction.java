@@ -1,4 +1,4 @@
-package poker.action;
+package poker.actions;
 
 import poker.domain.Player;
 import poker.domain.GameState;
@@ -15,9 +15,9 @@ public class BetAction extends Action {
             );
         }
 
-        if (amount > player.getMoney()) {
+        if (amount > player.getChips()) {
             throw new IllegalArgumentException(
-                    "Player does not have enough money. Has: " + player.getMoney() +
+                    "Player does not have enough chips. Has: " + player.getChips() +
                             ", needs: " + amount
             );
         }
@@ -25,9 +25,10 @@ public class BetAction extends Action {
     }
 
     @Override
-    public void execute(GameState gamestate) {
+    public void execute(GameState gameState) {
         player.bet(amount);
-        gamestate.addToPot(amount);
+        gameState.addToPot(amount);
+        player.setCurrentBet(player.getCurrentBet() + amount);
     }
 
     @Override
@@ -38,5 +39,4 @@ public class BetAction extends Action {
     public int getAmount() {
         return amount;
     }
-
 }

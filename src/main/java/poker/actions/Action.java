@@ -1,12 +1,12 @@
 package poker.actions;
 
 import poker.domain.Player;
-import poker.domain.GameSate;
+import poker.domain.GameState;
 
 public abstract class Action {
     protected final Player player;
 
-    public Action (Player player){
+    public Action(Player player) {
         this.player = player;
     }
 

@@ -1,4 +1,9 @@
-class TurnManager {
+package poker.game;
+
+import poker.domain.Player;
+import java.util.List;
+
+public class TurnManager {
     private List<Player> players;
     private int currentPlayerIndex;
 
@@ -18,7 +23,10 @@ class TurnManager {
             currentPlayerIndex = (currentPlayerIndex + 1) % count;
             checked++;
         } while (!isActive(players.get(currentPlayerIndex)) && checked < count);
-        if (!isActive(players.get(currentPlayerIndex))) return null;
+
+        if (!isActive(players.get(currentPlayerIndex))) {
+            return null;
+        }
         return players.get(currentPlayerIndex);
     }
 
@@ -31,10 +39,14 @@ class TurnManager {
     }
 
     private boolean isActive(Player p) {
-        return !p.isFolded() && p.getMoney() > 0;
+        return !p.isFolded() && p.getChips() > 0;
     }
 
     public void reset() {
         currentPlayerIndex = 0;
+    }
+
+    public void setCurrentPlayerIndex(int index) {
+        this.currentPlayerIndex = index;
     }
 }

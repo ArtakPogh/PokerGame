@@ -1,8 +1,7 @@
-package poker.action;
+package poker.actions;
 
 import poker.domain.Player;
 import poker.domain.GameState;
-import poker.config.TableConfig;
 
 public class FoldAction extends Action {
 
@@ -11,7 +10,7 @@ public class FoldAction extends Action {
     }
 
     @Override
-    public void execute(GameState gamestate) {
+    public void execute(GameState gameState) {
         player.fold();
     }
 

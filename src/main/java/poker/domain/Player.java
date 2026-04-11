@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-class Player {
+public class Player {
     private final String id;
     private final String name;
     private int chips;

@@ -51,13 +51,15 @@ public class GameState {
         return currentPlayerIndex;
     }
 
-    public int getCurrentBet(){
+    public int getCurrentBet() {
         return currentBet;
     }
-    public Player getCurrentPlayer(){
-        return players.get(currentPlayerIndex); 
+
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayerIndex);
     }
-    public void setCurrentBet(int bet){
+
+    public void setCurrentBet(int bet) {
         this.currentBet = bet;
     }
 
@@ -75,10 +77,11 @@ public class GameState {
 
     public void nextPlayer() {
         int count = players.size();
-        do{
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-        }while (player.get(currentPlayerIndex).isFolded());
+        do {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        } while (players.get(currentPlayerIndex).isFolded());
     }
+
     public boolean isBettingRoundComplete() {
         for (Player p : players) {
             if (!p.isFolded() && p.getCurrentBet() != currentBet) {
@@ -86,9 +89,9 @@ public class GameState {
             }
         }
         return true;
-     }
-     
-     public int getActivePlayersCount() {
+    }
+
+    public int getActivePlayersCount() {
         int count = 0;
         for (Player p : players) {
             if (!p.isFolded()) {
@@ -96,7 +99,14 @@ public class GameState {
             }
         }
         return count;
-     }
+    }
+
+    public void resetForNextBettingRound() {
+        currentBet = 0;
+        for (Player p : players) {
+            p.setCurrentBet(0);
+        }
+    }
 
     public void resetHand() {
         deck.shuffle();

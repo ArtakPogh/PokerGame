@@ -1,3 +1,5 @@
+package poker.domain.enums;
+
 public enum HandRank {
     HIGH_CARD,
     PAIR,
