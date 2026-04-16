@@ -13,7 +13,8 @@ public class TurnManager {
     }
 
     public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
+        Player p = players.get(currentPlayerIndex);
+        return isActive(p) ? p : null;
     }
 
     public Player nextPlayer() {
