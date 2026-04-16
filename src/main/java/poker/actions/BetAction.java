@@ -4,39 +4,25 @@ import poker.domain.Player;
 import poker.domain.GameState;
 import poker.config.TableConfig;
 
-public class BetAction extends Action {
+public class BetAction implements Action {
     private final int amount;
 
-    public BetAction(Player player, int amount) {
-        super(player);
-        if (amount < TableConfig.MIN_BET) {
-            throw new IllegalArgumentException(
-                    "Bet amount must be at least " + TableConfig.MIN_BET
-            );
-        }
-
-        if (amount > player.getChips()) {
-            throw new IllegalArgumentException(
-                    "Player does not have enough chips. Has: " + player.getChips() +
-                            ", needs: " + amount
-            );
-        }
+    public BetAction(int amount) {
         this.amount = amount;
     }
 
     @Override
-    public void execute(GameState gameState) {
+    public void execute(Player player, GameState gameState) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Bet must be positive");
+        }
+
+        if (amount > player.getChips()) {
+            throw new IllegalArgumentException(
+                "Player does not have enough chips. Has: " + player.getChips()
+            );
+        }
         player.bet(amount);
         gameState.addToPot(amount);
-        player.setCurrentBet(player.getCurrentBet() + amount);
-    }
-
-    @Override
-    public String getActionType() {
-        return "BET";
-    }
-
-    public int getAmount() {
-        return amount;
     }
 }

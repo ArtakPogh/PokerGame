@@ -4,29 +4,28 @@ public class TablePositions {
     private int dealerPosition;
     private int smallBlindPosition;
     private int bigBlindPosition;
-    private final int minPlayers = 2;
-    private final int maxPlayers = 6;
+    private final int minPlayers;
+    private final int maxPlayers;
 
-    public TablePositions() {
+    public TablePositions(int minPlayers, int maxPlayers) {
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
         this.dealerPosition = 0;
-        this.smallBlindPosition = 0;
-        this.bigBlindPosition = 0;
     }
 
-    public void initializePositions(int playerCount) {
-        validatePlayerCount(int playerCount);
+    public void initialize(int playerCount) {
+        validate(playerCount);
         dealerPosition = 0;
-        calculateBlindPositions(int playerCount);
+        calculateBlindPosition(playerCount);
     }
 
 
-    public void rotatePositions(int playerCount) {
-        validatePlayerCount(playerCount);
+    public void rotate(int playerCount) {
         dealerPosition = (dealerPosition + 1) % playerCount;
-        calculateBlindPositions(playerCount);
+        calculateBlindPosition(playerCount);
     }
 
-    private void calculateBlindPositions(int playerCount) {
+    private void calculateBlindPosition(int playerCount) {
         if (playerCount == 2) {
             smallBlindPosition = dealerPosition;
             bigBlindPosition = (dealerPosition + 1) % playerCount;
@@ -57,7 +56,7 @@ public class TablePositions {
        return (playerCount == 2)? (dealerPosition + 1) % playerCount : (dealerPosition + 1) % playerCount;
     }
 
-    private void validatePlayerCount(int count) {
+    private void validate(int count) {
         if (count < minPlayers || count > maxPlayers) {
             throw new IllegalStateException(
                     "Player count must be between " + minPlayers + " and " + maxPlayers

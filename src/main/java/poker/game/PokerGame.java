@@ -1,6 +1,7 @@
 package poker.game;
 
 import poker.domain.*;
+import poker.domain.enums.GamePhase;
 import poker.actions.Action;
 import java.util.List;
 
@@ -80,7 +81,7 @@ public class PokerGame {
         for (Player p : gameState.getPlayers()) {
             if (p.isFolded()) continue;
             Hand hand = new Hand(p.getHand(), gameState.getCommunityCards());
-            int score = HandEvaluator.evaluate(hand);
+            int score = HandEvaluation.evaluate(hand);
             if (score > bestScore) {
                 bestScore = score;
                 best = p;

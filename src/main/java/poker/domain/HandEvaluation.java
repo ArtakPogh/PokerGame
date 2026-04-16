@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class HandEvaluation{
-    public static HandRank evaluate(Hand hand) {
+   /* public static HandRank evaluate(Hand hand) {
         if (isRoyalFlush(hand)) return HandRank.ROYAL_FLUSH;
         if (isStraightFlush(hand)) return HandRank.STRAIGHT_FLUSH;
         if (isFourOfAKind(hand)) return HandRank.FOUR_OF_A_KIND;
@@ -21,8 +21,9 @@ public class HandEvaluation{
         if (isPair(hand)) return HandRank.PAIR;
         return HandRank.HIGH_CARD;
     }
-    
+    */
     //compare stuff
+    
     public static int evaluate(Hand hand) {
         List<Card> allCards = hand.getAllCards();
         int highestRank = 0;
