@@ -5,4 +5,5 @@ import poker.domain.GameState;
 
 public interface Action {
     public void execute(Player player, GameState gameState);
+    String getActionType();
 }

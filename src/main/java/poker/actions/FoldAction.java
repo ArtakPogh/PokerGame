@@ -8,5 +8,11 @@ public class FoldAction implements Action {
     @Override
     public void execute(Player player, GameState gameState) {
         player.fold();
+        System.out.println(player.getName() + " folds");
+    }
+
+    @Override
+    public String getActionType() {
+        return "FOLD";
     }
 }

@@ -1,36 +1,40 @@
-import poker.domain.*;
-import poker.game.*;
+package poker;
+
+import poker.session.SessionManager;
+import poker.session.GameSession;
+import poker.domain.Player;
 import poker.actions.*;
 
-import java.util.*;
-
 public class Main {
+
     public static void main(String[] args) {
 
-        Deck deck = new Deck();
+        SessionManager manager = new SessionManager();
 
         Player p1 = new Player("1", "Alice", 1000);
         Player p2 = new Player("2", "Bob", 1000);
+        Player p3 = new Player("3", "Charlie", 1000);
 
-        List<Player> players = Arrays.asList(p1, p2);
+        manager.assignPlayerToSession(p1);
+        manager.assignPlayerToSession(p2);
+        manager.assignPlayerToSession(p3);
 
-        PokerGame game = new PokerGame(players, deck);
+        System.out.println("Sessions created:");
+        System.out.println(manager.getAllSessions().size());
 
-        game.startGame();
+        System.out.println("Session of Alice:");
 
-        // simulate simple actions
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
+        GameSession session = manager.getSessionByPlayer("1");
 
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
-
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
-
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
-
-        System.out.println("Game finished");
-    }
+        if (session != null) {
+          System.out.println(session.getSessionId());
+        } else {
+          System.out.println("No session found for Alice");
+        }
+        
+        Action checkAction = new CheckAction();
+        manager.handleAction("1", checkAction);
+        manager.handleAction("2", checkAction);
+        manager.handleAction("3", checkAction);
+}
 }

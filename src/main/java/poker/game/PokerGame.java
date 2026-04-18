@@ -10,6 +10,10 @@ public class PokerGame {
   private TablePositions tablePositions;
   private TurnManager turnManager;
   
+  
+  public Player getCurrentPlayer() {
+    return turnManager.getCurrentPlayer();
+  }
   public PokerGame(List<Player> players, Deck deck) {
         this.gameState = new GameState(players, deck);
         this.turnManager = new TurnManager(players);

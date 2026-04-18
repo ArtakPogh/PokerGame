@@ -21,8 +21,13 @@ public class BetAction implements Action {
             throw new IllegalArgumentException(
                 "Player does not have enough chips. Has: " + player.getChips()
             );
+            
         }
         player.bet(amount);
         gameState.addToPot(amount);
+    }
+    @Override
+    public String getActionType() {
+        return "BET";
     }
 }
