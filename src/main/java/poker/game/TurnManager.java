@@ -11,10 +11,21 @@ public class TurnManager {
         this.players = players;
         this.currentPlayerIndex = 0;
     }
+    
+    public void initializeFirstPlayer() {
+      if (players.isEmpty()) throw new IllegalStateException("No players in game");
+      int count = players.size();
+      int checked = 0;
+      while (!isActive(players.get(currentPlayerIndex)) && checked < count) {
+        currentPlayerIndex = (currentPlayerIndex + 1) % count;
+        checked++;
+      }
+      if (!isActive(players.get(currentPlayerIndex))) throw new IllegalStateException("No active players available");
+    }
 
     public Player getCurrentPlayer() {
-        Player p = players.get(currentPlayerIndex);
-        return isActive(p) ? p : null;
+       if (players.isEmpty()) return null;
+       return players.get(currentPlayerIndex);
     }
 
     public Player nextPlayer() {
@@ -25,9 +36,7 @@ public class TurnManager {
             checked++;
         } while (!isActive(players.get(currentPlayerIndex)) && checked < count);
 
-        if (!isActive(players.get(currentPlayerIndex))) {
-            return null;
-        }
+        if (!isActive(players.get(currentPlayerIndex))) throw new IllegalStateException("No active players left");
         return players.get(currentPlayerIndex);
     }
 
@@ -42,12 +51,13 @@ public class TurnManager {
     private boolean isActive(Player p) {
         return !p.isFolded() && p.getChips() > 0;
     }
-
-    public void reset() {
-        currentPlayerIndex = 0;
-    }
-
+    
     public void setCurrentPlayerIndex(int index) {
+      if (index < 0 || index >= players.size()) throw new IllegalArgumentException("Invalid index");
+      this.currentPlayerIndex = index;
+    }
+    public void resetTo(int index) {
+         if (index < 0 || index >= players.size()) throw new IllegalArgumentException("Invalid player index");
         this.currentPlayerIndex = index;
     }
 }

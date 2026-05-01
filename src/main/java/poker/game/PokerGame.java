@@ -17,7 +17,7 @@ public class PokerGame {
   public PokerGame(List<Player> players, Deck deck) {
         this.gameState = new GameState(players, deck);
         this.turnManager = new TurnManager(players);
-        this.tablePositions = new TablePositions(2, 6);
+        this.tablePositions = new TablePositions(2,6);
     }
   public void startGame() {
         gameState.getDeck().shuffle();
@@ -36,7 +36,7 @@ public class PokerGame {
     }
   public void handleAction(Action action) {
         Player current = turnManager.getCurrentPlayer();
-        if (current == null) return;
+        if (current == null) throw new IllegalStateException("No current player");
         action.execute(current, gameState);
         if (!turnManager.isRoundOver()) {
             turnManager.nextPlayer();
@@ -46,22 +46,23 @@ public class PokerGame {
     }
   private void advancePhase() {
         switch (gameState.getPhase()) {
-            case PRE_FLOP:
+            case PRE_FLOP ->{
                 dealFlop();
                 gameState.setPhase(GamePhase.FLOP);
-                break;
-            case FLOP:
+              }
+            case FLOP ->{
                 dealTurn();
                 gameState.setPhase(GamePhase.TURN);
-                break;
-            case TURN:
+              }
+            case TURN ->{
                 dealRiver();
                 gameState.setPhase(GamePhase.RIVER);
-                break;
-            case RIVER:
+              }
+            case RIVER ->{
                 gameState.setPhase(GamePhase.SHOWDOWN);
                 determineWinner();
                 return;
+                }
         }
         int first = tablePositions.getFirstToActPostFlop(gameState.getPlayers().size());
         turnManager.setCurrentPlayerIndex(first);
@@ -81,14 +82,16 @@ public class PokerGame {
     }
     private void determineWinner() {
         Player best = null;
+        HandValue bestValue = null;
         int bestScore = -1;
         for (Player p : gameState.getPlayers()) {
             if (p.isFolded()) continue;
             Hand hand = new Hand(p.getHand(), gameState.getCommunityCards());
-            int score = HandEvaluation.evaluate(hand);
-            if (score > bestScore) {
-                bestScore = score;
-                best = p;
+            HandValue value = HandEvaluation.evaluate(hand);
+
+            if (best == null || value.compareTo(bestValue) > 0) {
+              bestValue = value;
+              best = p;
             }
         }
         if (best != null) {

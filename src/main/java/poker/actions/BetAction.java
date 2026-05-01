@@ -2,7 +2,6 @@ package poker.actions;
 
 import poker.domain.Player;
 import poker.domain.GameState;
-import poker.config.TableConfig;
 
 public class BetAction implements Action {
     private final int amount;
@@ -13,18 +12,15 @@ public class BetAction implements Action {
 
     @Override
     public void execute(Player player, GameState gameState) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Bet must be positive");
-        }
-
-        if (amount > player.getChips()) {
-            throw new IllegalArgumentException(
+        if (amount <= 0) throw new IllegalArgumentException("Bet must be positive");
+        if (amount > player.getChips()) throw new IllegalArgumentException(
                 "Player does not have enough chips. Has: " + player.getChips()
             );
-            
-        }
         player.bet(amount);
         gameState.addToPot(amount);
+        gameState.setCurrentBet(amount);
+        player.setCurrentBet(amount);
+        System.out.println(player.getName() + " bets " + amount);
     }
     @Override
     public String getActionType() {

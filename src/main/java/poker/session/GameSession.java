@@ -23,7 +23,7 @@ public class GameSession{
     public List<Player> getPlayers() {
         return Collections.unmodifiableList(players);
     }
-
+    
     public boolean isFull() {
         return players.size() >= maxPlayers;
     }
@@ -40,20 +40,18 @@ public class GameSession{
     }
     
     public boolean addPlayer(Player player){
-       if (isFull() || hasPlayer(player.getId())) {
-            return false;
-        }
+       if (isFull())throw new IllegalStateException("Session is full");
+       if(hasPlayer(player.getId())) throw new IllegalStateException("Session is full");
         players.add(player);
         if (canStartGame()) {
-            startGame();
+            startGame(); //needs a change when implementing web
         }
         return true;
     }
     public void removePlayer(String playerId) {
         boolean removed = players.removeIf(p -> p.getId().equals(playerId));
-        if (removed && players.size() < 2 && gameStarted) {
-            stopGame();
-        }
+        if (!removed) throw new IllegalStateException("Player not found in session");
+        if (players.size() < 2 && gameStarted) stopGame();
     }
      public boolean hasPlayer(String playerId) {
         return players.stream().anyMatch(p -> p.getId().equals(playerId));
@@ -62,8 +60,8 @@ public class GameSession{
         return players.size() >= 2 && !gameStarted;
     }
     public void startGame() {
-        if (gameStarted) return;
-        game = new PokerGame(new ArrayList<>(players), new Deck());
+        if (gameStarted) throw new IllegalStateException("Game already started");;
+        game = new PokerGame(players, new Deck());
         game.startGame();
         gameStarted = true;
     }
@@ -72,16 +70,16 @@ public class GameSession{
         game = null;
     }
      public void handleAction(String playerId, Action action) {
-        if (!gameStarted) return;
+        if (!gameStarted) throw new IllegalStateException("Game has not started");;
         Player player = findPlayer(playerId);
-        if (player == null) return;
-        if (!player.equals(game.getCurrentPlayer())) return;
+        if (player == null) throw new IllegalStateException("Player not found in session");
+        if (!player.equals(game.getCurrentPlayer())) throw new IllegalStateException("Not this player's turn");
         game.handleAction(action);
     }
      private Player findPlayer(String playerId) {
         return players.stream().filter(p -> p.getId().equals(playerId)).findFirst().orElse(null);
     }
-     public PokerGame getGameState() {
+     public PokerGame getGame() {
         return game;
     }
 }

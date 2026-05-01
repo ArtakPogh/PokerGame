@@ -1,6 +1,5 @@
 package poker.session;
 
-import poker.game.PokerGame;
 import poker.domain.Player;
 import poker.actions.Action;
 import java.util.*;
@@ -66,15 +65,12 @@ public class SessionManager{
   public void cleanupEmptySessions() {
     Iterator<Map.Entry<String, GameSession>> it = sessions.entrySet().iterator();
 
-    while (it.hasNext()) {
-        Map.Entry<String, GameSession> entry = it.next();
-        if (entry.getValue().isEmpty()) {
-            GameSession session = entry.getValue();
-            for (Player p : session.getPlayers()) {
-                playerToSession.remove(p.getId());
+     while (it.hasNext()) {
+            GameSession session = it.next().getValue();
+
+            if (session.isEmpty()) {
+                it.remove();
             }
-            it.remove();
-        }
-    }
+            }
   }
 }
