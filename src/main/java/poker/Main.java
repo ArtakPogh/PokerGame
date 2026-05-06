@@ -1,36 +1,42 @@
-import poker.domain.*;
-import poker.game.*;
+package poker;
+
+import poker.session.SessionManager;
+import poker.domain.Player;
 import poker.actions.*;
 
-import java.util.*;
-
 public class Main {
+
     public static void main(String[] args) {
 
-        Deck deck = new Deck();
+        SessionManager manager = new SessionManager();
 
-        Player p1 = new Player("1", "Alice", 1000);
-        Player p2 = new Player("2", "Bob", 1000);
+        // Create players
+        Player alice = new Player("1", "Alice", 1000);
+        Player bob = new Player("2", "Bob", 1000);
+        Player charlie = new Player("3", "Charlie", 1000);
 
-        List<Player> players = Arrays.asList(p1, p2);
+        // Assign to session
+        manager.assignPlayerToSession(alice);
+        manager.assignPlayerToSession(bob);
+        manager.assignPlayerToSession(charlie);
 
-        PokerGame game = new PokerGame(players, deck);
+        System.out.println("Sessions created:");
+        System.out.println(manager.getAllSessions().size());
 
-        game.startGame();
+        System.out.println("Session of Alice:");
+        System.out.println(manager.getSessionByPlayer("1").getSessionId());
 
-        // simulate simple actions
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
+        // --- Test actions ---
+        Action check = new CheckAction();
+        Action bet50 = new BetAction(50);
+        Action fold = new FoldAction();
 
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
+        System.out.println("\n--- ACTIONS ---");
 
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
+        manager.handleAction("1", check);
+        manager.handleAction("2", bet50);
+        manager.handleAction("3", fold);
 
-        game.handleAction(new CheckAction());
-        game.handleAction(new CheckAction());
-
-        System.out.println("Game finished");
+        System.out.println("\nDone.");
     }
 }
