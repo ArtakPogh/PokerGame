@@ -11,17 +11,6 @@ public class TurnManager {
         this.players = players;
         this.currentPlayerIndex = 0;
     }
-    
-    public void initializeFirstPlayer() {
-      if (players.isEmpty()) throw new IllegalStateException("No players in game");
-      int count = players.size();
-      int checked = 0;
-      while (!isActive(players.get(currentPlayerIndex)) && checked < count) {
-        currentPlayerIndex = (currentPlayerIndex + 1) % count;
-        checked++;
-      }
-      if (!isActive(players.get(currentPlayerIndex))) throw new IllegalStateException("No active players available");
-    }
 
     public Player getCurrentPlayer() {
        if (players.isEmpty()) return null;
@@ -55,9 +44,5 @@ public class TurnManager {
     public void setCurrentPlayerIndex(int index) {
       if (index < 0 || index >= players.size()) throw new IllegalArgumentException("Invalid index");
       this.currentPlayerIndex = index;
-    }
-    public void resetTo(int index) {
-         if (index < 0 || index >= players.size()) throw new IllegalArgumentException("Invalid player index");
-        this.currentPlayerIndex = index;
     }
 }
