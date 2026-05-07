@@ -29,12 +29,17 @@ public class TurnManager {
         return players.get(currentPlayerIndex);
     }
 
-    public boolean isRoundOver() {
-        int active = 0;
+    public boolean isRoundOver(GameState gameState) {
         for (Player p : players) {
-            if (isActive(p)) active++;
+            if (p.isFolded()) {
+                continue;
+            }
+            if (p.getCurrentBet() !=
+                    gameState.getCurrentBet()) {
+                return false;
+            }
         }
-        return active <= 1;
+        return true;
     }
 
     private boolean isActive(Player p) {

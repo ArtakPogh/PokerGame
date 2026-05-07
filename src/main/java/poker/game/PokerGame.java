@@ -34,12 +34,11 @@ public class PokerGame {
             }
         }
     }
-  public void handleAction(Action action) {
-        Player current = turnManager.getCurrentPlayer();
-        if (current == null) throw new IllegalStateException("No current player");
-        action.execute(current, gameState);
-        if (!turnManager.isRoundOver()) {
-            turnManager.nextPlayer();
+    public void handleAction(Action action) {
+        Player currentPlayer = turnManager.getCurrentPlayer();
+        action.execute(currentPlayer, gameState);
+        if (!turnManager.isRoundOver(gameState)) {
+            turnManager.moveToNextPlayer();
         } else {
             advancePhase();
         }
@@ -64,6 +63,7 @@ public class PokerGame {
                 return;
                 }
         }
+        gameState.resetForNextBettingRound();
         int first = tablePositions.getFirstToActPostFlop(gameState.getPlayers().size());
         turnManager.setCurrentPlayerIndex(first);
     }

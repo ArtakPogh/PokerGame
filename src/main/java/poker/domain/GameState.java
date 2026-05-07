@@ -101,7 +101,6 @@ public class GameState {
 
     public void resetForNextBettingRound() {
         currentBet = 0;
-        lastRaiseAmount = 0;
         for (Player p : players) {
             p.setCurrentBet(0);
         }
