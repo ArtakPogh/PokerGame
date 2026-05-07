@@ -80,10 +80,11 @@ public class PokerGame {
     private void dealRiver() {
         gameState.addCommunityCard(gameState.getDeck().deal());
     }
+
     private void determineWinner() {
         Player best = null;
         HandValue bestValue = null;
-        int bestScore = -1;
+
         for (Player p : gameState.getPlayers()) {
             if (p.isFolded()) continue;
             Hand hand = new Hand(p.getHand(), gameState.getCommunityCards());
@@ -96,6 +97,7 @@ public class PokerGame {
         }
         if (best != null) {
             best.addChips(gameState.getPot());
+            System.out.println( best.gameName() + "wins the pot of" + gameState.getPot());
         }
     }
 }
