@@ -1,7 +1,5 @@
 package poker.domain;
 
-import poker.domain.enums.Suit;
-import poker.domain.enums.Rank;
 import poker.domain.enums.GamePhase;
 
 import java.util.List;
@@ -14,7 +12,6 @@ public class GameState {
     private List<Card> communityCards;
     private int pot;
     private GamePhase phase;
-    private int currentPlayerIndex;
     private int currentBet;
 
     public GameState(List<Player> players, Deck deck) {
@@ -22,8 +19,8 @@ public class GameState {
         this.deck = deck;
         this.communityCards = new ArrayList<>();
         this.pot = 0;
+        this.lastRaiseAmount = 0;
         this.phase = GamePhase.PRE_FLOP;
-        this.currentPlayerIndex = 0;
         this.currentBet = 0;
     }
 
@@ -47,16 +44,12 @@ public class GameState {
         return phase;
     }
 
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
+    public int getLastRaiseAmount() {
+        return lastRaiseAmount;
     }
 
     public int getCurrentBet() {
         return currentBet;
-    }
-
-    public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
     }
 
     public void setCurrentBet(int bet) {
@@ -65,6 +58,9 @@ public class GameState {
 
     public void addCommunityCard(Card card) {
         communityCards.add(card);
+    }
+    public void setLastRaiseAmount(int amount) {
+        this.lastRaiseAmount = amount;
     }
 
     public void addToPot(int amount) {
@@ -103,12 +99,14 @@ public class GameState {
 
     public void resetForNextBettingRound() {
         currentBet = 0;
+        lastRaiseAmount = 0;
         for (Player p : players) {
             p.setCurrentBet(0);
         }
     }
 
     public void resetHand() {
+        deck = new Deck();
         deck.shuffle();
         communityCards.clear();
         pot = 0;
