@@ -19,6 +19,9 @@ public class HandEvaluation {
             int kicker = getHighestExcluding(cards, fours.get(0));
             return new HandValue(HandRank.FOUR_OF_A_KIND, List.of(fours.get(0), kicker));
         }
+        if (!threes.isEmpty() && !pairs.isEmpty()) {
+            return new HandValue(HandRank.FULL_HOUSE, List.of(threes.get(0), pairs.get(0)));
+        }
         if (flush) return new HandValue(HandRank.FLUSH, getTopRanks(cards, 5));
         if (straightHigh > 0) return new HandValue(HandRank.STRAIGHT, List.of(straightHigh));
         if (!threes.isEmpty()) {

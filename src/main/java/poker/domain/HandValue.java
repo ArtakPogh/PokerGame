@@ -17,6 +17,10 @@ public class HandValue implements Comparable<HandValue> {
         return rank;
     }
 
+    public List<Integer> getTiebreakers() {
+        return Collections.unmodifiableList(tiebreakers);
+    }
+
     @Override
     public int compareTo(HandValue other) {
         if (this.rank != other.rank) return Integer.compare(this.rank.getValue(), other.rank.getValue());

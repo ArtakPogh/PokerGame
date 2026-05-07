@@ -20,7 +20,7 @@ public class Player {
         this.id = id;
         this.name = name;
         this.chips = startingChips;
-    }BasicBot
+    }
 
     public void receiveCard(Card card) {
         hand.add(card);
