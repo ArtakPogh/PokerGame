@@ -72,7 +72,9 @@ public class GameState {
     }
 
     public void nextPlayer() {
-        int count = players.size();
+        if (getActivePlayersCount() == 0) {
+            throw new IllegalStateException("No active players remaining");
+        }
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         } while (players.get(currentPlayerIndex).isFolded());
