@@ -15,13 +15,14 @@ public class BetAction implements Action {
         if (amount <= 0) throw new IllegalArgumentException("Bet must be positive");
         if (amount > player.getChips()) throw new IllegalArgumentException(
                 "Player does not have enough chips. Has: " + player.getChips()
-            );
+        );
         player.bet(amount);
         gameState.addToPot(amount);
         gameState.setCurrentBet(amount);
         player.setCurrentBet(amount);
         System.out.println(player.getName() + " bets " + amount);
     }
+
     @Override
     public String getActionType() {
         return "BET";
