@@ -14,6 +14,9 @@ public class PokerGame {
   public Player getCurrentPlayer() {
     return turnManager.getCurrentPlayer();
   }
+  public GameState getGameState() {
+    return gameState;
+  }
   public PokerGame(List<Player> players, Deck deck) {
         this.gameState = new GameState(players, deck);
         this.turnManager = new TurnManager(players);
@@ -37,11 +40,8 @@ public class PokerGame {
     public void handleAction(Action action) {
         Player currentPlayer = turnManager.getCurrentPlayer();
         action.execute(currentPlayer, gameState);
-        if (!turnManager.isRoundOver(gameState)) {
-            turnManager.moveToNextPlayer();
-        } else {
-            advancePhase();
-        }
+         if (gameState.isBettingRoundComplete()) advancePhase();
+         else turnManager.nextPlayer();
     }
   private void advancePhase() {
         switch (gameState.getPhase()) {
@@ -97,7 +97,7 @@ public class PokerGame {
         }
         if (best != null) {
             best.addChips(gameState.getPot());
-            System.out.println( best.gameName() + "wins the pot of" + gameState.getPot());
+            System.out.println( best.getName() + "wins the pot of" + gameState.getPot());
         }
     }
 }

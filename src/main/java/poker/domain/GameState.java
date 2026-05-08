@@ -13,6 +13,7 @@ public class GameState {
     private int pot;
     private GamePhase phase;
     private int currentBet;
+    private int lastRaiseAmount;
 
     public GameState(List<Player> players, Deck deck) {
         this.players = players;
@@ -71,15 +72,6 @@ public class GameState {
         this.phase = phase;
     }
 
-    public void nextPlayer() {
-        if (getActivePlayersCount() == 0) {
-            throw new IllegalStateException("No active players remaining");
-        }
-        do {
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-        } while (players.get(currentPlayerIndex).isFolded());
-    }
-
     public boolean isBettingRoundComplete() {
         for (Player p : players) {
             if (!p.isFolded() && p.getCurrentBet() != currentBet) {
@@ -113,7 +105,6 @@ public class GameState {
         pot = 0;
         currentBet = 0;
         phase = GamePhase.PRE_FLOP;
-        currentPlayerIndex = 0;
         for (Player p : players) {
             p.resetForNewRound();
         }

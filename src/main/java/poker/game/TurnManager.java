@@ -1,6 +1,7 @@
 package poker.game;
 
 import poker.domain.Player;
+import poker.domain.GameState;
 import java.util.List;
 
 public class TurnManager {
