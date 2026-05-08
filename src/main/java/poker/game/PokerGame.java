@@ -14,6 +14,9 @@ public class PokerGame {
   public Player getCurrentPlayer() {
     return turnManager.getCurrentPlayer();
   }
+  public GameState getGameState() {
+    return gameState;
+  }
   public PokerGame(List<Player> players, Deck deck) {
         this.gameState = new GameState(players, deck);
         this.turnManager = new TurnManager(players);
@@ -34,15 +37,11 @@ public class PokerGame {
             }
         }
     }
-  public void handleAction(Action action) {
-        Player current = turnManager.getCurrentPlayer();
-        if (current == null) throw new IllegalStateException("No current player");
-        action.execute(current, gameState);
-        if (!turnManager.isRoundOver()) {
-            turnManager.nextPlayer();
-        } else {
-            advancePhase();
-        }
+    public void handleAction(Action action) {
+        Player currentPlayer = turnManager.getCurrentPlayer();
+        action.execute(currentPlayer, gameState);
+         if (gameState.isBettingRoundComplete()) advancePhase();
+         else turnManager.nextPlayer();
     }
   private void advancePhase() {
         switch (gameState.getPhase()) {
@@ -64,6 +63,7 @@ public class PokerGame {
                 return;
                 }
         }
+        gameState.resetForNextBettingRound();
         int first = tablePositions.getFirstToActPostFlop(gameState.getPlayers().size());
         turnManager.setCurrentPlayerIndex(first);
     }
@@ -80,10 +80,11 @@ public class PokerGame {
     private void dealRiver() {
         gameState.addCommunityCard(gameState.getDeck().deal());
     }
+
     private void determineWinner() {
         Player best = null;
         HandValue bestValue = null;
-        int bestScore = -1;
+
         for (Player p : gameState.getPlayers()) {
             if (p.isFolded()) continue;
             Hand hand = new Hand(p.getHand(), gameState.getCommunityCards());
@@ -96,6 +97,7 @@ public class PokerGame {
         }
         if (best != null) {
             best.addChips(gameState.getPot());
+            System.out.println( best.getName() + "wins the pot of" + gameState.getPot());
         }
     }
 }

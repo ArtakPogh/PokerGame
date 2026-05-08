@@ -1,7 +1,5 @@
 package poker.domain;
 
-import poker.domain.enums.Suit;
-import poker.domain.enums.Rank;
 import poker.domain.enums.GamePhase;
 
 import java.util.List;
@@ -14,16 +12,16 @@ public class GameState {
     private List<Card> communityCards;
     private int pot;
     private GamePhase phase;
-    private int currentPlayerIndex;
     private int currentBet;
+    private int lastRaiseAmount;
 
     public GameState(List<Player> players, Deck deck) {
         this.players = players;
         this.deck = deck;
         this.communityCards = new ArrayList<>();
         this.pot = 0;
+        this.lastRaiseAmount = 0;
         this.phase = GamePhase.PRE_FLOP;
-        this.currentPlayerIndex = 0;
         this.currentBet = 0;
     }
 
@@ -47,16 +45,12 @@ public class GameState {
         return phase;
     }
 
-    public int getCurrentPlayerIndex() {
-        return currentPlayerIndex;
+    public int getLastRaiseAmount() {
+        return lastRaiseAmount;
     }
 
     public int getCurrentBet() {
         return currentBet;
-    }
-
-    public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
     }
 
     public void setCurrentBet(int bet) {
@@ -66,6 +60,9 @@ public class GameState {
     public void addCommunityCard(Card card) {
         communityCards.add(card);
     }
+    public void setLastRaiseAmount(int amount) {
+        this.lastRaiseAmount = amount;
+    }
 
     public void addToPot(int amount) {
         pot += amount;
@@ -73,15 +70,6 @@ public class GameState {
 
     public void setPhase(GamePhase phase) {
         this.phase = phase;
-    }
-
-    public void nextPlayer() {
-        if (getActivePlayersCount() == 0) {
-            throw new IllegalStateException("No active players remaining");
-        }
-        do {
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-        } while (players.get(currentPlayerIndex).isFolded());
     }
 
     public boolean isBettingRoundComplete() {
@@ -111,12 +99,12 @@ public class GameState {
     }
 
     public void resetHand() {
+        deck = new Deck();
         deck.shuffle();
         communityCards.clear();
         pot = 0;
         currentBet = 0;
         phase = GamePhase.PRE_FLOP;
-        currentPlayerIndex = 0;
         for (Player p : players) {
             p.resetForNewRound();
         }
