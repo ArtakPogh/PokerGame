@@ -41,6 +41,11 @@ public class GameSession{
     public boolean isEmpty() {
         return players.isEmpty();
     }
+    public void removePlayer(String playerId) {
+        boolean removed = players.removeIf(p -> p.getId().equals(playerId));
+        if (!removed) throw new IllegalStateException("Player not found in session");
+        if (players.size() < 2 && gameStarted) stopGame();
+    }
 
     public boolean isGameStarted() {
         return gameStarted;
