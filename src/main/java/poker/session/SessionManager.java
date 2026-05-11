@@ -1,9 +1,13 @@
 package poker.session;
 
+import org.springframework.stereotype.Component;
 import poker.domain.Player;
 import poker.actions.Action;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
+
+@Component
 public class SessionManager{
   private final Map<String, GameSession> sessions = new HashMap<>();
   private final Map<String, String> playerToSession = new HashMap<>();
@@ -12,7 +16,7 @@ public class SessionManager{
             return sessions.get(playerToSession.get(player.getId()));
         }
         for (GameSession session : sessions.values()) {
-            if (!session.isFull() && !session.isGameStarted()) {
+            if (!session.isFull() && !session.isGameStarted() && !session.isSessionOver()) {
                 session.addPlayer(player);
                 playerToSession.put(player.getId(), session.getSessionId());
                 return session;

@@ -1,39 +1,75 @@
 package poker.web.controller;
 
-import org.springframework.web.bind.annotation.*;
 import poker.session.*;
-import poker.domain.Player;
+import poker.domain.*;
+import poker.config.TableConfig;
+import poker.web.dto.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/sessions")
+@RequestMapping("/api/sessions")
 public class SessionController {
 
-    private final SessionManager sessionManager = new SessionManager();
+    private final SessionManager sessionManager;
+
+    @Autowired
+    public SessionController(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
 
     @PostMapping("/create")
-    public GameSession createSession() {
-        return sessionManager.createSession();
+    public ResponseEntity<Map<String, String>> createSession() {
+        GameSession session = sessionManager.createSession();
+        return ResponseEntity.ok(Map.of("tableId", session.getSessionId()));
     }
 
     @PostMapping("/{sessionId}/join")
-    public String join(
+    public ResponseEntity<GameStateDTO> join(
             @PathVariable String sessionId,
-            @RequestBody Player player
+            @RequestBody CreatePlayerRequest request
     ) {
         GameSession session = sessionManager.getSession(sessionId);
+        if (session == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String name = (request.getName() != null && !request.getName().isBlank())
+                ? request.getName()
+                : "Player-" + request.getId().substring(0, 6);
+
+        int chips = (request.getChips() > 0) ? request.getChips() : TableConfig.STARTING_CHIPS;
+
+        Player player = new Player(request.getId(), name, chips);
         session.addPlayer(player);
-        return "joined";
+
+        return ResponseEntity.ok(GameStateDTO.from(session, request.getId()));
     }
 
     @GetMapping("/{sessionId}")
-    public GameSession getSession(@PathVariable String sessionId) {
-        return sessionManager.getSession(sessionId);
+    public ResponseEntity<GameStateDTO> getSession(
+            @PathVariable String sessionId,
+            @RequestParam(required = false, defaultValue = "") String playerId
+    ) {
+        GameSession session = sessionManager.getSession(sessionId);
+        if (session == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(GameStateDTO.from(session, playerId));
     }
 
     @GetMapping
-    public List<GameSession> allSessions() {
-        return sessionManager.getAllSessions();
+    public ResponseEntity<List<Map<String, Object>>> allSessions() {
+        List<Map<String, Object>> result = sessionManager.getAllSessions().stream()
+                .map(s -> Map.<String, Object>of(
+                        "tableId", s.getSessionId(),
+                        "players", s.getPlayerCount(),
+                        "started", s.isGameStarted()
+                ))
+                .toList();
+        return ResponseEntity.ok(result);
     }
 }
