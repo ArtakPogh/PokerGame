@@ -2,9 +2,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>poker</groupId>
     <artifactId>poker-server</artifactId>
     <version>1.0</version>
@@ -12,7 +10,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.0</version>
+        <version>3.1.0</version>  <!-- downgraded: 3.3.0 requires Java 21, you have Java 17 -->
     </parent>
 
     <properties>
@@ -20,31 +18,32 @@
     </properties>
 
     <dependencies>
-
-        <!-- Spring Web -->
+        <!-- Spring Web (REST controllers, embedded Tomcat) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Optional: JSON pretty serialization -->
+        <!-- Jackson (already pulled in by starter-web, but explicit is fine) -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- DevTools: auto-restart when you recompile, optional but helpful -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
-            <!-- Spring Boot runner -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
         </plugins>
     </build>
-
 </project>

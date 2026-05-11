@@ -39,16 +39,16 @@ public class SessionController {
             return ResponseEntity.notFound().build();
         }
 
-        String name = (request.name != null && !request.name.isBlank())
-                ? request.name
-                : "Player-" + request.id.substring(0, 6);
+        String name = (request.getName() != null && !request.getName().isBlank())
+                ? request.getName()
+                : "Player-" + request.getId().substring(0, 6);
 
-        int chips = (request.chips > 0) ? request.chips : TableConfig.STARTING_CHIPS;
+        int chips = (request.getChips() > 0) ? request.getChips() : TableConfig.STARTING_CHIPS;
 
-        Player player = new Player(request.id, name, chips);
+        Player player = new Player(request.getId(), name, chips);
         session.addPlayer(player);
 
-        return ResponseEntity.ok(GameStateDTO.from(session, request.id));
+        return ResponseEntity.ok(GameStateDTO.from(session, request.getId()));
     }
 
     @GetMapping("/{sessionId}")

@@ -28,15 +28,15 @@ public class GameController {
 
     @PostMapping("/join")
     public ResponseEntity<GameStateDTO> join(@RequestBody CreatePlayerRequest request) {
-        String name = (request.name != null && !request.name.isBlank())
-                ? request.name
-                : "Player-" + request.id.substring(0, 6);
-        int chips = (request.chips > 0) ? request.chips : TableConfig.STARTING_CHIPS;
+        String name = (request.getName() != null && !request.getName().isBlank())
+                ? request.getName()
+                : "Player-" + request.getId().substring(0, 6);
+        int chips = (request.getChips() > 0) ? request.getChips() : TableConfig.STARTING_CHIPS;
 
-        Player player = new Player(request.id, name, chips);
+        Player player = new Player(request.getId(), name, chips);
         GameSession session = sessionManager.assignPlayerToSession(player);
 
-        return ResponseEntity.ok(GameStateDTO.from(session, request.id));
+        return ResponseEntity.ok(GameStateDTO.from(session, request.getId()));
     }
 
 
@@ -55,13 +55,13 @@ public class GameController {
 
     @PostMapping("/action")
     public ResponseEntity<?> action(@RequestBody ActionRequest request) {
-        if (request.tableId == null || request.playerId == null) {
+        if (request.getTableId() == null || request.getPlayerId() == null) {
             return ResponseEntity.badRequest().body(
                     Map.of("error", "tableId and playerId are required")
             );
         }
 
-        GameSession session = sessionManager.getSession(request.tableId);
+        GameSession session = sessionManager.getSession(request.getTableId());
         if (session == null) {
             return ResponseEntity.notFound().build();
         }
@@ -69,27 +69,27 @@ public class GameController {
         Action action = buildAction(request);
         if (action == null) {
             return ResponseEntity.badRequest().body(
-                    Map.of("error", "Unknown action type: " + request.type)
+                    Map.of("error", "Unknown action type: " + request.getType())
             );
         }
 
         try {
-            session.handleAction(request.playerId, action);
+            session.handleAction(request.getPlayerId(), action);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
 
-        return ResponseEntity.ok(GameStateDTO.from(session, request.playerId));
+        return ResponseEntity.ok(GameStateDTO.from(session, request.getPlayerId()));
     }
 
     private Action buildAction(ActionRequest request) {
-        if (request.type == null) return null;
-        return switch (request.type.toUpperCase()) {
+        if (request.getType() == null) return null;
+        return switch (request.getType().toUpperCase()) {
             case "FOLD"  -> new FoldAction();
             case "CHECK" -> new CheckAction();
             case "CALL"  -> new CallAction();
-            case "BET"   -> new BetAction(request.amount);
-            case "RAISE" -> new RaiseAction(request.amount);
+            case "BET"   -> new BetAction(request.getAmount());
+            case "RAISE" -> new RaiseAction(request.getAmount());
             default      -> null;
         };
     }
