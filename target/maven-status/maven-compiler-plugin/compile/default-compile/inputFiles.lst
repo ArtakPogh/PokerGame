@@ -26,4 +26,5 @@
 /home/arthur/Desktop/projectPoker/src/main/java/poker/web/controller/SessionController.java
 /home/arthur/Desktop/projectPoker/src/main/java/poker/web/dto/ActionRequest.java
 /home/arthur/Desktop/projectPoker/src/main/java/poker/web/dto/CreatePlayerRequest.java
+/home/arthur/Desktop/projectPoker/src/main/java/poker/web/dto/GameStateDTO.java
 /home/arthur/Desktop/projectPoker/src/main/java/poker/web/dto/PlayerDTO.java
