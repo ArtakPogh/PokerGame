@@ -84,12 +84,10 @@ public class PokerGame {
     private void determineWinner() {
         Player best = null;
         HandValue bestValue = null;
-
         for (Player p : gameState.getPlayers()) {
             if (p.isFolded()) continue;
             Hand hand = new Hand(p.getHand(), gameState.getCommunityCards());
             HandValue value = HandEvaluation.evaluate(hand);
-
             if (best == null || value.compareTo(bestValue) > 0) {
               bestValue = value;
               best = p;
@@ -97,7 +95,7 @@ public class PokerGame {
         }
         if (best != null) {
             best.addChips(gameState.getPot());
-            System.out.println( best.getName() + "wins the pot of" + gameState.getPot());
+            System.out.println(best.getName() + " wins the pot of" + gameState.getPot());
         }
     }
 }
