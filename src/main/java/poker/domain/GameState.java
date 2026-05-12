@@ -75,11 +75,11 @@ public class GameState {
     }
 
     public boolean isBettingRoundComplete() {
-        actionsThisRound = 0;
+        int activePlayers = 0;
         for (Player p : players) {
-            if (!p.isFolded()) activePlayers++
+            if (!p.isFolded()) activePlayers++;
         }
-        if (actionsThisRound < activePlayers) return false
+        if (actionsThisRound < activePlayers) return false;
         for(Player p : players) {
           if(p.isFolded()) continue;
           if (p.getChips() == 0) continue;
@@ -106,7 +106,7 @@ public class GameState {
 
     public void resetForNextBettingRound() {
         currentBet = 0;
-        actionThisRound = 0;
+        actionsThisRound = 0;
         for (Player p : players) {
             p.setCurrentBet(0);
         }
@@ -118,7 +118,7 @@ public class GameState {
         communityCards.clear();
         pot = 0;
         currentBet = 0;
-        actionThisRound = 0;
+        actionsThisRound = 0;
         phase = GamePhase.PRE_FLOP;
         for (Player p : players) {
             p.resetForNewRound();

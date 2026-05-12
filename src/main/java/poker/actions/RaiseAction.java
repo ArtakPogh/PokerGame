@@ -31,7 +31,7 @@ public class RaiseAction implements Action {
         player.setCurrentBet(totalBet);
         gameState.setCurrentBet(totalBet);
         gameState.addToPot(toPay);
-        gameState.recordActionsForRaise();
+        gameState.resetActionsForRaise();
         System.out.println(player.getName() + " raises to " + totalBet);
     }
 
