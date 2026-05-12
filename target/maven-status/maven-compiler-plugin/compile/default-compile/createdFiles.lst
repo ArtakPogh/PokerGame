@@ -1,6 +1,6 @@
 poker/actions/CheckAction.class
-poker/web/dto/GameStateDTO.class
 poker/domain/Hand.class
+poker/web/dto/GameStateDTO.class
 poker/web/controller/GameController.class
 poker/actions/BetAction.class
 poker/actions/RaiseAction.class
@@ -19,8 +19,8 @@ poker/actions/CallAction.class
 poker/domain/enums/Rank.class
 poker/actions/Action.class
 poker/game/PokerGame.class
-poker/game/TurnManager.class
 poker/actions/FoldAction.class
+poker/game/TurnManager.class
 poker/config/TableConfig.class
 poker/domain/Player.class
 poker/domain/HandEvaluation.class

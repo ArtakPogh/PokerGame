@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class SessionManager{
-  private final Map<String, GameSession> sessions = new HashMap<>();
-  private final Map<String, String> playerToSession = new HashMap<>();
+  private final Map<String, GameSession> sessions = new ConcurrentHashMap<>();
+  private final Map<String, String> playerToSession = new ConcurrentHashMap<>();
   public GameSession assignPlayerToSession(Player player) {
         if (playerToSession.containsKey(player.getId())) {
             return sessions.get(playerToSession.get(player.getId()));
