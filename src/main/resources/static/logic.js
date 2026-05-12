@@ -1,5 +1,5 @@
 /**
- * logic.js — Texas Hold'em Poker Frontend
+ * logic.js – Texas Hold'em Poker Frontend
  *
  * Screen flow:
  *   startScreen  →  (click Start)
@@ -22,36 +22,36 @@ let timerInterval = null;
 let pollingInterval = null;
 let hasJoined = false;
 
-const startScreen = document.getElementById("startScreen");
-const waitingScreen = document.getElementById("waitingScreen");
+const startScreen      = document.getElementById("startScreen");
+const waitingScreen    = document.getElementById("waitingScreen");
 const eliminatedScreen = document.getElementById("eliminatedScreen");
 const sessionOverScreen = document.getElementById("sessionOverScreen");
-const tableWrapper = document.getElementById("tableWrapper");
-const waitingMsg = document.getElementById("waitingMsg");
-const winnerMsg = document.getElementById("winnerMsg");
+const tableWrapper     = document.getElementById("tableWrapper");
+const waitingMsg       = document.getElementById("waitingMsg");
+const winnerMsg        = document.getElementById("winnerMsg");
 
-const playerNameInput = document.getElementById("playerNameInput");
-const startBtn = document.getElementById("startBtn");
-const playAgainBtn = document.getElementById("playAgainBtn");
-const newGameBtn = document.getElementById("newGameBtn");
+const playerNameInput  = document.getElementById("playerNameInput");
+const startBtn         = document.getElementById("startBtn");
+const playAgainBtn     = document.getElementById("playAgainBtn");
+const newGameBtn       = document.getElementById("newGameBtn");
 
-const communityCards = document.getElementById("communityCards");
-const potElement = document.getElementById("pot");
-const timerElement = document.getElementById("timer");
-const turnIndicator = document.getElementById("turnIndicator");
-const phaseLabel = document.getElementById("phaseLabel");
+const communityCards   = document.getElementById("communityCards");
+const potElement       = document.getElementById("pot");
+const timerElement     = document.getElementById("timer");
+const turnIndicator    = document.getElementById("turnIndicator");
+const phaseLabel       = document.getElementById("phaseLabel");
 const playersContainer = document.getElementById("playersContainer");
-const playerCards = document.getElementById("playerCards");
+const playerCards      = document.getElementById("playerCards");
 
-const foldBtn = document.getElementById("foldBtn");
-const checkBtn = document.getElementById("checkBtn");
-const callBtn = document.getElementById("callBtn");
-const raiseBtn = document.getElementById("raiseBtn");
-const buttons = document.querySelectorAll(".actions button");
+const foldBtn    = document.getElementById("foldBtn");
+const checkBtn   = document.getElementById("checkBtn");
+const callBtn    = document.getElementById("callBtn");
+const raiseBtn   = document.getElementById("raiseBtn");
+const buttons    = document.querySelectorAll(".actions button");
 
-const raisePanel = document.getElementById("raisePanel");
-const raiseSlider = document.getElementById("raiseSlider");
-const raiseValue = document.getElementById("raiseValue");
+const raisePanel   = document.getElementById("raisePanel");
+const raiseSlider  = document.getElementById("raiseSlider");
+const raiseValue   = document.getElementById("raiseValue");
 const confirmRaise = document.getElementById("confirmRaise");
 
 window.addEventListener("load", () => {
@@ -89,8 +89,8 @@ async function joinTable(name) {
     try {
         const response = await fetch(`${API_URL}/join`, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({id: playerId, name})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: playerId, name })
         });
 
         if (!response.ok) {
@@ -122,7 +122,26 @@ async function loadGame() {
         const response = await fetch(
             `${API_URL}/state?tableId=${tableId}&playerId=${playerId}`
         );
+
+        // FIX Bug 1: if the server restarted and the session is gone (404),
+        // automatically wipe stale localStorage and return to the start screen.
+        if (response.status === 404) {
+            console.warn("Session not found on server — clearing stale local data.");
+            stopPolling();
+            localStorage.removeItem("tableId");
+            localStorage.removeItem("playerId");
+            tableId = null;
+            showScreen("start");
+            // Re-generate a fresh playerId for the next session
+            playerId = crypto.randomUUID();
+            localStorage.setItem("playerId", playerId);
+            startBtn.disabled = false;
+            startBtn.textContent = "Start Game";
+            return;
+        }
+
         if (!response.ok) return;
+
         gameState = await response.json();
         applyScreenTransition();
     } catch (err) {
@@ -135,13 +154,14 @@ async function sendAction(type, amount = 0) {
         disableButtons();
         const response = await fetch(`${API_URL}/action`, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({tableId, playerId, type, amount})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tableId, playerId, type, amount })
         });
 
         if (!response.ok) {
             const err = await response.json().catch(() => ({}));
             console.error("Action error:", err.error || response.status);
+            // Re-enable buttons only if it's still our turn
             if (gameState.currentPlayerId === playerId) enableButtons();
             return;
         }
@@ -157,10 +177,10 @@ function applyScreenTransition() {
     if (gameState.sessionOver) {
         stopPolling();
         clearInterval(timerInterval);
-        const isWinner = gameState.sessionWinnerName &&
-            (gameState.players || []).find(p => p.id === playerId)?.name === gameState.sessionWinnerName;
+        const me = (gameState.players || []).find(p => p.id === playerId);
+        const isWinner = me && gameState.sessionWinnerName && me.name === gameState.sessionWinnerName;
         winnerMsg.textContent = isWinner
-            ? `🎉 You won the whole game! Congratulations!`
+            ? `🏆 You won the whole game! Congratulations!`
             : `🏆 ${gameState.sessionWinnerName} wins the game!`;
         showScreen("sessionOver");
         return;
@@ -191,21 +211,11 @@ function showScreen(name) {
     tableWrapper.classList.add("hidden");
 
     switch (name) {
-        case "start":
-            startScreen.classList.remove("hidden");
-            break;
-        case "waiting":
-            waitingScreen.classList.remove("hidden");
-            break;
-        case "eliminated":
-            eliminatedScreen.classList.remove("hidden");
-            break;
-        case "sessionOver":
-            sessionOverScreen.classList.remove("hidden");
-            break;
-        case "table":
-            tableWrapper.classList.remove("hidden");
-            break;
+        case "start":      startScreen.classList.remove("hidden");       break;
+        case "waiting":    waitingScreen.classList.remove("hidden");     break;
+        case "eliminated": eliminatedScreen.classList.remove("hidden");  break;
+        case "sessionOver": sessionOverScreen.classList.remove("hidden"); break;
+        case "table":      tableWrapper.classList.remove("hidden");      break;
     }
 }
 
@@ -225,6 +235,7 @@ function renderCommunityCards() {
         const div = document.createElement("div");
         div.className = "card";
         div.textContent = formatCard(card);
+        applyCardColor(div, card);
         communityCards.appendChild(div);
     });
 }
@@ -232,14 +243,17 @@ function renderCommunityCards() {
 function renderPlayers() {
     playersContainer.innerHTML = "";
     (gameState.players || []).forEach(player => {
-        if (player.id === playerId) return; // skip ourselves — shown separately at the bottom
+        if (player.id === playerId) return; // shown separately at the bottom
         const activeClass = player.id === gameState.currentPlayerId ? "active-player" : "";
         const foldedClass = player.folded ? "folded-player" : "";
+        // FIX Bug 3: show all-in status clearly
+        const allIn = !player.folded && player.chips === 0;
+        const statusText = player.folded ? "Folded" : (allIn ? "All-In" : "In");
         playersContainer.innerHTML += `
             <div class="player ${activeClass} ${foldedClass}">
                 <div class="player-name">${player.name}</div>
                 <div class="player-money">$${player.chips}</div>
-                <div class="player-status">${player.folded ? "Folded" : "In"}</div>
+                <div class="player-status">${statusText}</div>
             </div>`;
     });
 }
@@ -250,6 +264,7 @@ function renderPlayerCards() {
         const div = document.createElement("div");
         div.className = "card";
         div.textContent = formatCard(card);
+        applyCardColor(div, card);
         playerCards.appendChild(div);
     });
 }
@@ -261,9 +276,9 @@ function renderPot() {
 function renderPhase() {
     const labels = {
         PRE_FLOP: "Pre-Flop",
-        FLOP: "Flop",
-        TURN: "Turn",
-        RIVER: "River",
+        FLOP:     "Flop",
+        TURN:     "Turn",
+        RIVER:    "River",
         SHOWDOWN: "Showdown"
     };
     phaseLabel.textContent = labels[gameState.phase] || "";
@@ -295,19 +310,25 @@ function renderTurn() {
 function updateButtons() {
     const me = (gameState.players || []).find(p => p.id === playerId);
     if (!me) return;
+
     const facingBet = (gameState.currentBet || 0) > (me.currentBet || 0);
-    checkBtn.style.display = facingBet ? "none" : "inline-block";
-    callBtn.style.display = facingBet ? "inline-block" : "none";
+    checkBtn.style.display = facingBet ? "none"         : "inline-block";
+    callBtn.style.display  = facingBet ? "inline-block" : "none";
+
+    // FIX Bug 3: hide Raise if player is all-in or has no chips to raise with
+    const canRaise = me.chips > 0 && me.chips > (gameState.currentBet - (me.currentBet || 0));
+    raiseBtn.style.display = canRaise ? "inline-block" : "none";
 }
 
+// ─── Card formatting ─────────────────────────────────────────────────────────
 
 const RANK_SYMBOLS = {
     TWO: "2", THREE: "3", FOUR: "4", FIVE: "5", SIX: "6",
     SEVEN: "7", EIGHT: "8", NINE: "9", TEN: "10",
     JACK: "J", QUEEN: "Q", KING: "K", ACE: "A"
 };
-const SUIT_SYMBOLS = {HEARTS: "♥", DIAMONDS: "♦", CLUBS: "♣", SPADES: "♠"};
-const SUIT_COLORS = {HEARTS: "red", DIAMONDS: "red", CLUBS: "black", SPADES: "black"};
+const SUIT_SYMBOLS = { HEARTS: "♥", DIAMONDS: "♦", CLUBS: "♣", SPADES: "♠" };
+const RED_SUITS    = new Set(["HEARTS", "DIAMONDS"]);
 
 function formatCard(cardStr) {
     const parts = cardStr.split(" of ");
@@ -317,15 +338,26 @@ function formatCard(cardStr) {
     return rank + suit;
 }
 
-foldBtn.addEventListener("click", () => sendAction("FOLD"));
+function applyCardColor(div, cardStr) {
+    const parts = cardStr.split(" of ");
+    if (parts.length === 2 && RED_SUITS.has(parts[1].trim())) {
+        div.classList.add("red");
+    }
+}
+
+// ─── Action handlers ──────────────────────────────────────────────────────────
+
+foldBtn.addEventListener("click",  () => sendAction("FOLD"));
 checkBtn.addEventListener("click", () => sendAction("CHECK"));
-callBtn.addEventListener("click", () => sendAction("CALL"));
+callBtn.addEventListener("click",  () => sendAction("CALL"));
 
 raiseBtn.addEventListener("click", () => {
+    const me = (gameState.players || []).find(p => p.id === playerId);
+    const myChips = me ? me.chips : 0;
     const min = gameState.minimumRaise || 50;
-    const max = gameState.playerMoney || 1000;
-    raiseSlider.min = min;
-    raiseSlider.max = max;
+    const max = Math.max(min, myChips);  // can't raise more than you have
+    raiseSlider.min   = min;
+    raiseSlider.max   = max;
     raiseSlider.value = min;
     raiseValue.textContent = min;
     raisePanel.classList.remove("hidden");
@@ -341,9 +373,11 @@ confirmRaise.addEventListener("click", () => {
     sendAction("RAISE", amount);
 });
 
+// ─── Timer ────────────────────────────────────────────────────────────────────
+
 function startTimer() {
     clearInterval(timerInterval);
-    let timeLeft = gameState.remainingTime || 30;
+    let timeLeft = gameState.remainingTime ?? 30;
     timerElement.textContent = timeLeft;
 
     timerInterval = setInterval(() => {
@@ -356,20 +390,20 @@ function startTimer() {
     }, 1000);
 }
 
+// ─── Button helpers ───────────────────────────────────────────────────────────
+
 function enableButtons() {
-    buttons.forEach(b => {
-        b.disabled = false;
-    });
+    buttons.forEach(b => { b.disabled = false; });
 }
 
 function disableButtons() {
-    buttons.forEach(b => {
-        b.disabled = true;
-    });
+    buttons.forEach(b => { b.disabled = true; });
 }
 
+// ─── Polling ──────────────────────────────────────────────────────────────────
+
 function startPolling() {
-    if (pollingInterval) return;          // don't double-start
+    if (pollingInterval) return;   // don't double-start
     pollingInterval = setInterval(loadGame, 2000);
 }
 
