@@ -14,6 +14,7 @@ public class GameState {
     private GamePhase phase;
     private int currentBet;
     private int lastRaiseAmount;
+    private int actionsThisRound = 0;
 
     public GameState(List<Player> players, Deck deck) {
         this.players = players;
@@ -23,6 +24,7 @@ public class GameState {
         this.lastRaiseAmount = 0;
         this.phase = GamePhase.PRE_FLOP;
         this.currentBet = 0;
+        this.actionsThisRound = 0;
     }
 
     public List<Player> getPlayers() {
@@ -73,10 +75,15 @@ public class GameState {
     }
 
     public boolean isBettingRoundComplete() {
+        actionsThisRound = 0;
         for (Player p : players) {
-            if (!p.isFolded() && p.getCurrentBet() != currentBet) {
-                return false;
-            }
+            if (!p.isFolded()) activePlayers++
+        }
+        if (actionsThisRound < activePlayers) return false
+        for(Player p : players) {
+          if(p.isFolded()) continue;
+          if (p.getChips() == 0) continue;
+          if(p.getCurrentBet() != currentBet)return false;
         }
         return true;
     }
@@ -90,9 +97,16 @@ public class GameState {
         }
         return count;
     }
+    public void recordAction(){
+      actionsThisRound++;
+    }
+    public void resetActionsForRaise(){
+      actionsThisRound = 1;
+    }
 
     public void resetForNextBettingRound() {
         currentBet = 0;
+        actionThisRound = 0;
         for (Player p : players) {
             p.setCurrentBet(0);
         }
@@ -104,6 +118,7 @@ public class GameState {
         communityCards.clear();
         pot = 0;
         currentBet = 0;
+        actionThisRound = 0;
         phase = GamePhase.PRE_FLOP;
         for (Player p : players) {
             p.resetForNewRound();

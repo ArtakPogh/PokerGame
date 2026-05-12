@@ -8,6 +8,7 @@ public class CheckAction implements Action {
     public void execute(Player player, GameState gameState) {
         if (player.getCurrentBet() < gameState.getCurrentBet())
             throw new IllegalStateException("Cannot check when there is a bet.");
+        gameState.recordAction();
         System.out.println(player.getName() + " checks");
     }
 

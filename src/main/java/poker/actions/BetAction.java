@@ -31,6 +31,7 @@ public class BetAction implements Action {
         player.setCurrentBet(amount);
         gameState.setCurrentBet(amount);
         gameState.addToPot(amount);
+        gameState.recordAction();
         System.out.println(player.getName() + " bets " + amount);
     }
 

@@ -26,15 +26,13 @@ public class TurnManager {
             checked++;
         } while (!isActive(players.get(currentPlayerIndex)) && checked < count);
 
-        if (!isActive(players.get(currentPlayerIndex))) throw new IllegalStateException("No active players left");
         return players.get(currentPlayerIndex);
     }
 
     public boolean isRoundOver(GameState gameState) {
         for (Player p : players) {
-            if (p.isFolded()) {
-                continue;
-            }
+            if (p.isFolded()) continue;
+            if(p.getChips() == 0) continue;
             if (p.getCurrentBet() !=
                     gameState.getCurrentBet()) {
                 return false;
