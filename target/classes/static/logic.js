@@ -1,13 +1,3 @@
-/**
- * logic.js — Texas Hold'em Poker Frontend
- *
- * Screen flow:
- *   startScreen  →  (click Start)
- *   waitingScreen →  (2nd player joins, polling detects gameStarted)
- *   tableWrapper  →  (play until eliminated or session over)
- *   eliminatedScreen / sessionOverScreen
- */
-
 const API_URL = "/api/game";
 
 let playerId = localStorage.getItem("playerId");
@@ -122,7 +112,23 @@ async function loadGame() {
         const response = await fetch(
             `${API_URL}/state?tableId=${tableId}&playerId=${playerId}`
         );
+
+        if (response.status === 404) {
+            console.warn("Session not found on server — clearing stale local data.");
+            stopPolling();
+            localStorage.removeItem("tableId");
+            localStorage.removeItem("playerId");
+            tableId = null;
+            showScreen("start");
+            playerId = crypto.randomUUID();
+            localStorage.setItem("playerId", playerId);
+            startBtn.disabled = false;
+            startBtn.textContent = "Start Game";
+            return;
+        }
+
         if (!response.ok) return;
+
         gameState = await response.json();
         applyScreenTransition();
     } catch (err) {
@@ -157,10 +163,10 @@ function applyScreenTransition() {
     if (gameState.sessionOver) {
         stopPolling();
         clearInterval(timerInterval);
-        const isWinner = gameState.sessionWinnerName &&
-            (gameState.players || []).find(p => p.id === playerId)?.name === gameState.sessionWinnerName;
+        const me = (gameState.players || []).find(p => p.id === playerId);
+        const isWinner = me && gameState.sessionWinnerName && me.name === gameState.sessionWinnerName;
         winnerMsg.textContent = isWinner
-            ? `🎉 You won the whole game! Congratulations!`
+            ? `🏆 You won the whole game! Congratulations!`
             : `🏆 ${gameState.sessionWinnerName} wins the game!`;
         showScreen("sessionOver");
         return;
@@ -225,6 +231,7 @@ function renderCommunityCards() {
         const div = document.createElement("div");
         div.className = "card";
         div.textContent = formatCard(card);
+        applyCardColor(div, card);
         communityCards.appendChild(div);
     });
 }
@@ -232,14 +239,16 @@ function renderCommunityCards() {
 function renderPlayers() {
     playersContainer.innerHTML = "";
     (gameState.players || []).forEach(player => {
-        if (player.id === playerId) return; // skip ourselves — shown separately at the bottom
+        if (player.id === playerId) return;
         const activeClass = player.id === gameState.currentPlayerId ? "active-player" : "";
         const foldedClass = player.folded ? "folded-player" : "";
+        const allIn = !player.folded && player.chips === 0;
+        const statusText = player.folded ? "Folded" : (allIn ? "All-In" : "In");
         playersContainer.innerHTML += `
             <div class="player ${activeClass} ${foldedClass}">
                 <div class="player-name">${player.name}</div>
                 <div class="player-money">$${player.chips}</div>
-                <div class="player-status">${player.folded ? "Folded" : "In"}</div>
+                <div class="player-status">${statusText}</div>
             </div>`;
     });
 }
@@ -250,6 +259,7 @@ function renderPlayerCards() {
         const div = document.createElement("div");
         div.className = "card";
         div.textContent = formatCard(card);
+        applyCardColor(div, card);
         playerCards.appendChild(div);
     });
 }
@@ -295,11 +305,13 @@ function renderTurn() {
 function updateButtons() {
     const me = (gameState.players || []).find(p => p.id === playerId);
     if (!me) return;
+
     const facingBet = (gameState.currentBet || 0) > (me.currentBet || 0);
     checkBtn.style.display = facingBet ? "none" : "inline-block";
     callBtn.style.display = facingBet ? "inline-block" : "none";
+    const canRaise = me.chips > 0 && me.chips > (gameState.currentBet - (me.currentBet || 0));
+    raiseBtn.style.display = canRaise ? "inline-block" : "none";
 }
-
 
 const RANK_SYMBOLS = {
     TWO: "2", THREE: "3", FOUR: "4", FIVE: "5", SIX: "6",
@@ -307,7 +319,7 @@ const RANK_SYMBOLS = {
     JACK: "J", QUEEN: "Q", KING: "K", ACE: "A"
 };
 const SUIT_SYMBOLS = {HEARTS: "♥", DIAMONDS: "♦", CLUBS: "♣", SPADES: "♠"};
-const SUIT_COLORS = {HEARTS: "red", DIAMONDS: "red", CLUBS: "black", SPADES: "black"};
+const RED_SUITS = new Set(["HEARTS", "DIAMONDS"]);
 
 function formatCard(cardStr) {
     const parts = cardStr.split(" of ");
@@ -317,13 +329,22 @@ function formatCard(cardStr) {
     return rank + suit;
 }
 
+function applyCardColor(div, cardStr) {
+    const parts = cardStr.split(" of ");
+    if (parts.length === 2 && RED_SUITS.has(parts[1].trim())) {
+        div.classList.add("red");
+    }
+}
+
 foldBtn.addEventListener("click", () => sendAction("FOLD"));
 checkBtn.addEventListener("click", () => sendAction("CHECK"));
 callBtn.addEventListener("click", () => sendAction("CALL"));
 
 raiseBtn.addEventListener("click", () => {
+    const me = (gameState.players || []).find(p => p.id === playerId);
+    const myChips = me ? me.chips : 0;
     const min = gameState.minimumRaise || 50;
-    const max = gameState.playerMoney || 1000;
+    const max = Math.max(min, myChips);
     raiseSlider.min = min;
     raiseSlider.max = max;
     raiseSlider.value = min;
@@ -343,7 +364,7 @@ confirmRaise.addEventListener("click", () => {
 
 function startTimer() {
     clearInterval(timerInterval);
-    let timeLeft = gameState.remainingTime || 30;
+    let timeLeft = gameState.remainingTime ?? 30;
     timerElement.textContent = timeLeft;
 
     timerInterval = setInterval(() => {
@@ -369,7 +390,7 @@ function disableButtons() {
 }
 
 function startPolling() {
-    if (pollingInterval) return;          // don't double-start
+    if (pollingInterval) return;
     pollingInterval = setInterval(loadGame, 2000);
 }
 

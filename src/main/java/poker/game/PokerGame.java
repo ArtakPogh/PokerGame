@@ -79,7 +79,6 @@ public class PokerGame {
         Player currentPlayer = turnManager.getCurrentPlayer();
         action.execute(currentPlayer, gameState);
 
-        // If only one player remains (everyone else folded), end immediately
         if (gameState.getActivePlayersCount() == 1) {
             awardPotToLastPlayer();
             gameState.setPhase(GamePhase.SHOWDOWN);
