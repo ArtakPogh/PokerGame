@@ -89,7 +89,6 @@ public class GameStateDTO {
         dto.currentPlayerId = current != null ? current.getId() : "";
         dto.currentPlayerName = current != null ? current.getName() : "";
 
-        // Calculate real remaining time from turn start timestamp
         long elapsed = (System.currentTimeMillis() - session.getTurnStartTime()) / 1000;
         dto.remainingTime = Math.max(0, (int)(30 - elapsed));
 

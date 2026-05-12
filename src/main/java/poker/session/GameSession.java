@@ -112,7 +112,6 @@ public class GameSession {
 
         game.handleAction(action);
 
-        // Reset timer for the next player's turn
         turnStartTime = System.currentTimeMillis();
 
         if (game.getGameState().getPhase() == GamePhase.SHOWDOWN) {
@@ -121,7 +120,6 @@ public class GameSession {
     }
 
     private void handleHandEnd() {
-        // Short delay before starting next hand would be handled client-side via SHOWDOWN phase display
         for (Player p : players) {
             if (p.getChips() <= 0 && !eliminatedPlayerIds.contains(p.getId())) {
                 eliminatedPlayerIds.add(p.getId());
@@ -140,7 +138,6 @@ public class GameSession {
             }
             game = null;
         } else {
-            // Clear hands before starting new game — this fixes the card stacking bug
             for (Player p : active) {
                 p.resetForNewRound();
             }
