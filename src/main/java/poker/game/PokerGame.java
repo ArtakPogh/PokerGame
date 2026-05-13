@@ -27,7 +27,6 @@ public class PokerGame {
     }
 
     public void startGame() {
-        // Clear hands from any previous round
         for (Player p : gameState.getPlayers()) {
             p.resetForNewRound();
         }
